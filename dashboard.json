@@ -1,0 +1,6 @@
+{
+  "generated_at": null,
+  "macro": { "ok": false, "error": "Not yet generated - run the GitHub Action or scripts/build_data.py" },
+  "sectors": { "ok": false, "error": "Not yet generated - run the GitHub Action or scripts/build_data.py" },
+  "movers": { "ok": false, "error": "Not yet generated - run the GitHub Action or scripts/build_data.py" }
+}
