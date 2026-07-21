@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0E11;
+    --panel: #12161C;
+    --panel-2: #161B22;
+    --border: #232830;
+    --text: #E6E9ED;
+    --muted: #7A8290;
+    --accent: #D9A441;
+    --pos: #3FB950;
+    --neg: #F85149;
+    --blue: #58A6FF;
+    --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .brand h1 {
+    font-size: 20px;
+    letter-spacing: 0.02em;
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .brand .tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--pos);
+    box-shadow: 0 0 0 0 rgba(63,185,80,0.6);
+    animation: pulse 2.2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(63,185,80,0.5); }
+    70% { box-shadow: 0 0 0 6px rgba(63,185,80,0); }
+    100% { box-shadow: 0 0 0 0 rgba(63,185,80,0); }
+  }
+
+  section { margin-bottom: 36px; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .section-head .idx {
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-size: 12px;
+  }
+
+  .section-head h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0;
+    color: var(--text);
+  }
+
+  .section-head .sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+    font-family: var(--font-mono);
+  }
+
+  /* macro strip */
+  .macro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+  }
+
+  .macro-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+
+  .macro-card .label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+
+  .macro-card .value {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  .macro-card .change {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .macro-card .asof {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .pos { color: var(--pos); }
+  .neg { color: var(--neg); }
+  .neu { color: var(--muted); }
+
+  /* sector relative strength */
+  .sector-table {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .sector-row {
+    display: grid;
+    grid-template-columns: 70px 1fr 110px;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sector-row:last-child { border-bottom: none; }
+
+  .sector-row .ticker {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .sector-row .name {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .bar-track {
+    position: relative;
+    height: 18px;
+    background: var(--panel-2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .bar-zero {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+  .bar-fill {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    border-radius: 2px;
+  }
+
+  .sector-row .rs-value {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    text-align: right;
+  }
+
+  /* movers */
+  .movers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 640px) {
+    .movers-grid { grid-template-columns: 1fr; }
+    .sector-row { grid-template-columns: 60px 1fr 80px; }
+  }
+
+  .movers-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 0;
+  }
+  .movers-panel .head {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .mover-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .mover-row:last-child { border-bottom: none; }
+  .mover-row .name {
+    color: var(--muted);
+    font-size: 11px;
+    margin-left: 8px;
+  }
+  .mover-row .right {
+    font-family: var(--font-mono);
+    display: flex;
+    gap: 12px;
+  }
+
+  /* themes - manual notes section */
+  .themes-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .themes-box code {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    background: var(--panel-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .error-note {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--neg);
+    padding: 12px 16px;
+  }
+
+  footer {
+    margin-top: 40px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <h1>MARKET DESK</h1>
+      <span class="tag">PERSONAL</span>
+    </div>
+    <div class="status">
+      <span class="dot"></span>
+      <span id="last-updated">loading…</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <span class="idx">01</span>
+      <h2>Macro</h2>
+      <span class="sub" id="macro-sub"></span>
+    </div>
+    <div id="macro-container" class="macro-grid"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="idx">02</span>
+      <h2>Sector Relative Strength</h2>
+      <span class="sub">vs SPY · 1 month</span>
+    </div>
+    <div id="sector-container" class="sector-table"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="idx">03</span>
+      <h2>Movers</h2>
+      <span class="sub" id="movers-sub">S&amp;P 500 · prior session</span>
+    </div>
+    <div id="movers-container" class="movers-grid"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="idx">04</span>
+      <h2>Themes</h2>
+      <span class="sub">manual notes</span>
+    </div>
+    <div class="themes-box">
+      This section isn't wired to a data feed — themes are narrative, not a clean number to
+      pull automatically. Edit the <code>THEMES</code> array near the bottom of
+      <code>index.html</code> with whatever you're tracking this week, and it'll show up here
+      on next refresh. (If you want, this is also a good spot to paste in FactSet or news-feed
+      commentary by hand each morning.)
+    </div>
+    <div id="themes-container"></div>
+  </section>
+
+  <footer>
+    Data: FRED (macro) · Yahoo Finance via yfinance (sectors, movers) · Refreshed daily via GitHub Actions.
+    Not investment advice — personal reference only.
+  </footer>
+
+</div>
+
+<script>
+  // ---- edit this list to track whatever narratives you care about this week ----
+  const THEMES = [
+    // { title: "AI capex cycle", note: "Watching hyperscaler guidance vs semis relative strength." },
+  ];
+
+  function fmtPct(v, digits = 2) {
+    if (v === null || v === undefined || Number.isNaN(v)) return '—';
+    const sign = v > 0 ? '+' : '';
+    return `${sign}${v.toFixed(digits)}%`;
+  }
+
+  function colorClass(v) {
+    if (v === null || v === undefined) return 'neu';
+    return v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu';
+  }
+
+  function renderMacro(section) {
+    const container = document.getElementById('macro-container');
+    const sub = document.getElementById('macro-sub');
+    container.innerHTML = '';
+
+    if (!section.ok) {
+      container.innerHTML = `<div class="error-note">Macro data unavailable: ${section.error}</div>`;
+      return;
+    }
+
+    const items = section.data;
+    sub.textContent = items[0] ? `as of ${items[0].as_of}` : '';
+
+    items.forEach(item => {
+      if (item.error) return;
+      const el = document.createElement('div');
+      el.className = 'macro-card';
+      const changeStr = item.change !== null && item.change !== undefined
+        ? `${item.change > 0 ? '+' : ''}${item.change} ${item.units}`.trim()
+        : '';
+      el.innerHTML = `
+        <div class="label">${item.name}</div>
+        <div class="value">${item.value}${item.units && item.units !== '%' && item.units !== 'pp' ? '' : item.units}</div>
+        <div class="change ${colorClass(item.change)}">${changeStr}</div>
+        <div class="asof">${item.as_of}</div>
+      `;
+      container.appendChild(el);
+    });
+  }
+
+  function renderSectors(section) {
+    const container = document.getElementById('sector-container');
+    container.innerHTML = '';
+
+    if (!section.ok) {
+      container.innerHTML = `<div class="error-note">Sector data unavailable: ${section.error}</div>`;
+      return;
+    }
+
+    const sectors = section.data.sectors;
+    const maxAbs = Math.max(...sectors.map(s => Math.abs(s.rel_strength_1m || 0)), 1);
+
+    sectors.forEach(s => {
+      const row = document.createElement('div');
+      row.className = 'sector-row';
+      const rs = s.rel_strength_1m;
+      const widthPct = rs === null ? 0 : Math.min(Math.abs(rs) / maxAbs, 1) * 48; // max 48% of half-track
+      const isPos = (rs || 0) >= 0;
+      row.innerHTML = `
+        <div>
+          <div class="ticker">${s.ticker}</div>
+          <div class="name">${s.name}</div>
+        </div>
+        <div class="bar-track">
+          <div class="bar-zero"></div>
+          <div class="bar-fill" style="
+            ${isPos ? 'left' : 'right'}: 50%;
+            width: ${widthPct}%;
+            background: ${isPos ? 'var(--pos)' : 'var(--neg)'};
+          "></div>
+        </div>
+        <div class="rs-value ${colorClass(rs)}">${fmtPct(rs)}</div>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  function renderMoverList(title, rows) {
+    const panel = document.createElement('div');
+    panel.className = 'movers-panel';
+    const head = document.createElement('div');
+    head.className = 'head';
+    head.textContent = title;
+    panel.appendChild(head);
+
+    rows.forEach(r => {
+      const row = document.createElement('div');
+      row.className = 'mover-row';
+      row.innerHTML = `
+        <span><strong>${r.ticker}</strong><span class="name">${r.name}</span></span>
+        <span class="right">
+          <span>${r.last_close}</span>
+          <span class="${colorClass(r.change_pct)}">${fmtPct(r.change_pct)}</span>
+        </span>
+      `;
+      panel.appendChild(row);
+    });
+    return panel;
+  }
+
+  function renderMovers(section) {
+    const container = document.getElementById('movers-container');
+    const sub = document.getElementById('movers-sub');
+    container.innerHTML = '';
+
+    if (!section.ok) {
+      container.innerHTML = `<div class="error-note">Movers data unavailable: ${section.error}</div>`;
+      return;
+    }
+
+    sub.textContent = `S&P 500 · session ending ${section.data.as_of}`;
+    container.appendChild(renderMoverList('TOP GAINERS', section.data.gainers));
+    container.appendChild(renderMoverList('TOP LOSERS', section.data.losers));
+  }
+
+  function renderThemes() {
+    const container = document.getElementById('themes-container');
+    if (!THEMES.length) return;
+    container.style.marginTop = '10px';
+    THEMES.forEach(t => {
+      const el = document.createElement('div');
+      el.className = 'themes-box';
+      el.style.marginTop = '8px';
+      el.innerHTML = `<strong style="color: var(--text)">${t.title}</strong><br>${t.note}`;
+      container.appendChild(el);
+    });
+  }
+
+  async function init() {
+    try {
+      const res = await fetch('data/dashboard.json', { cache: 'no-store' });
+      const data = await res.json();
+
+      document.getElementById('last-updated').textContent = data.generated_at
+        ? `updated ${new Date(data.generated_at).toLocaleString()}`
+        : 'not yet generated';
+
+      renderMacro(data.macro);
+      renderSectors(data.sectors);
+      renderMovers(data.movers);
+      renderThemes();
+    } catch (e) {
+      document.getElementById('last-updated').textContent = 'failed to load data';
+      console.error(e);
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
